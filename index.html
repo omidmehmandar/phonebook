@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دفتر تلفن - تماد مشهد</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #e0e0e0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 30px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+    color: #64b5f6;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+  }
+
+  header p {
+    color: #90a4ae;
+    font-size: 0.9rem;
+  }
+
+  .contact-info {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .contact-badge {
+    background: rgba(100, 181, 246, 0.15);
+    border: 1px solid rgba(100, 181, 246, 0.3);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    color: #90caf9;
+  }
+
+  .search-box {
+    position: sticky;
+    top: 10px;
+    z-index: 100;
+    margin-bottom: 24px;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 16px 24px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 50px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    outline: none;
+    transition: all 0.3s;
+    font-family: inherit;
+    text-align: right;
+  }
+
+  .search-box input::placeholder { color: #90a4ae; }
+  .search-box input:focus {
+    background: rgba(255,255,255,0.15);
+    border-color: #64b5f6;
+    box-shadow: 0 0 0 3px rgba(100,181,246,0.2);
+  }
+
+  .stats {
+    text-align: center;
+    color: #78909c;
+    font-size: 0.85rem;
+    margin-bottom: 20px;
+  }
+
+  .stats span { color: #64b5f6; font-weight: bold; }
+
+  .sections {
+    display: grid;
+    gap: 16px;
+  }
+
+  .section {
+    background: rgba(255,255,255,0.04);
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .section:hover {
+    border-color: rgba(100,181,246,0.3);
+    background: rgba(255,255,255,0.06);
+  }
+
+  .section-header {
+    background: rgba(100,181,246,0.1);
+    padding: 12px 20px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: #64b5f6;
+    border-bottom: 1px solid rgba(100,181,246,0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-header::before {
+    content: '';
+    width: 4px;
+    height: 20px;
+    background: #64b5f6;
+    border-radius: 2px;
+  }
+
+  .entries {
+    padding: 8px 0;
+  }
+
+  .entry {
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s;
+  }
+
+  .entry:last-child { border-bottom: none; }
+  .entry:hover { background: rgba(255,255,255,0.04); }
+
+  .entry.hidden { display: none; }
+
+  .entry-role {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #cfd8dc;
+  }
+
+  .entry-name {
+    font-size: 0.85rem;
+    color: #90a4ae;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  .entry-ext {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .ext-badge {
+    background: rgba(76,175,80,0.15);
+    border: 1px solid rgba(76,175,80,0.4);
+    color: #a5d6a7;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+
+  .no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #546e7a;
+    font-size: 1.1rem;
+    display: none;
+  }
+
+  .section.all-hidden { display: none; }
+
+  @media (max-width: 600px) {
+    .entry { flex-wrap: wrap; gap: 6px; }
+    .entry-name { min-width: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📞 دفتر تلفن داخلی</h1>
+    <p>شرکت تولید مواد اولیه داروپخش — تماد مشهد — ۱۴۰۴</p>
+    <div class="contact-info">
+      <span class="contact-badge">☎ 05133924097</span>
+      <span class="contact-badge">☎ 05133924098</span>
+      <span class="contact-badge">☎ 05133920811</span>
+      <span class="contact-badge">📠 05133923937</span>
+      <span class="contact-badge">📮 کد پستی: 9165966412</span>
+    </div>
+  </header>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="🔍  جستجو در نام، سمت یا شماره داخلی..." oninput="doSearch()">
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="no-results" id="noResults">نتیجه‌ای یافت نشد</div>
+
+  <div class="sections" id="sections"></div>
+</div>
+
+<script>
+const data = [
+  {
+    section: "مدیریت",
+    entries: [
+      { role: "مدیر کارخانه", name: "آقای وحیدی", ext: ["106","107","200"] },
+      { role: "رئیس دفتر و دبیرخانه", name: "آقای زنگنه وند", ext: [] },
+    ]
+  },
+  {
+    section: "حراست",
+    entries: [
+      { role: "رئیس حراست", name: "آقای فقیهی", ext: ["119"] },
+      { role: "انتظامات", name: "", ext: ["121","108"] },
+    ]
+  },
+  {
+    section: "مالی و تدارکات",
+    entries: [
+      { role: "مدیر پشتیبانی", name: "آقای محرابی", ext: ["130"] },
+      { role: "رئیس حسابداری", name: "آقای غفاری", ext: ["129"] },
+      { role: "کارشناس حسابداری", name: "خانم همائی", ext: ["180"] },
+      { role: "کارمند مالی", name: "خانم اسدی", ext: ["180"] },
+      { role: "رئیس تدارکات", name: "آقای جمی", ext: ["135"] },
+      { role: "کارشناس تدارکات", name: "آقای رخشانی", ext: ["135"] },
+      { role: "کارپردازی", name: "", ext: ["133"] },
+    ]
+  },
+  {
+    section: "اداری و منابع انسانی",
+    entries: [
+      { role: "رئیس منابع انسانی", name: "آقای مهماندار", ext: ["118"] },
+      { role: "کارمند فناوری اطلاعات", name: "آقای بنی هاشم", ext: ["118"] },
+      { role: "مدیر اجرایی", name: "آقای زنگنه", ext: ["202"] },
+      { role: "جانشین مدیر پشتیبانی", name: "آقای اسمعیل زادگان", ext: ["129"] },
+      { role: "رئیس استراتژی و تعالی سازمانی", name: "آقای رضائی", ext: ["197"] },
+    ]
+  },
+  {
+    section: "خدمات و رفاهی",
+    entries: [
+      { role: "رئیس خدمات و امور رفاهی", name: "آقای پهلوانی", ext: ["194"] },
+      { role: "کارشناس آموزش", name: "آقای بسکابادی", ext: ["194"] },
+      { role: "آبدارخانه اداری", name: "", ext: ["123"] },
+      { role: "رستوران", name: "", ext: ["122"] },
+      { role: "رختکن", name: "", ext: ["154"] },
+    ]
+  },
+  {
+    section: "ایمنی و HSE",
+    entries: [
+      { role: "رئیس ایمنی", name: "آقای کارگر", ext: ["198"] },
+      { role: "ایستگاه ایمنی و آتش نشانی", name: "", ext: ["125"] },
+    ]
+  },
+  {
+    section: "پالایش و بازیافت",
+    entries: [
+      { role: "رئیس پالایش و بازیافت", name: "آقای محمودی", ext: ["204"] },
+      { role: "تصفیه خانه", name: "", ext: ["178"] },
+    ]
+  },
+  {
+    section: "تضمین کیفیت",
+    entries: [
+      { role: "مدیر تضمین کیفیت - مسئول فنی", name: "آقای یوسفی", ext: ["170"] },
+      { role: "رئیس تضمین کیفیت", name: "آقای یزدانی", ext: ["173"] },
+      { role: "کارشناس تضمین کیفیت", name: "آقای گلستان", ext: ["173"] },
+      { role: "کارشناس تضمین کیفیت", name: "آقای طالب پور", ext: ["173"] },
+      { role: "کارشناس تضمین کیفیت", name: "خانم هژبری", ext: ["190"] },
+    ]
+  },
+  {
+    section: "آزمایشگاه (کنترل کیفیت)",
+    entries: [
+      { role: "مدیر آزمایشگاه", name: "آقای سلمانی", ext: ["210"] },
+      { role: "رئیس کنترل کیفیت", name: "آقای سیاح", ext: ["139"] },
+      { role: "رئیس آزمایشگاه دستگاهی", name: "آقای ابراهیمی طلب", ext: ["131"] },
+      { role: "آزمایشگاه آنالیز شیمی", name: "", ext: ["137"] },
+      { role: "آزمایشگاه تحقیقات", name: "", ext: ["138"] },
+      { role: "آزمایشگاه حین فرایند", name: "", ext: ["136"] },
+      { role: "کارشناس آزمایشگاه", name: "خانم آزادبخت", ext: ["180"] },
+      { role: "رئیس تحقیقات", name: "آقای حسینی", ext: ["199"] },
+      { role: "رئیس IPQC", name: "آقای نصیری", ext: ["209"] },     
+      { role: "آبدارخانه آزمایشگاه", name: "", ext: ["127"] },
+    ]
+  },
+  {
+    section: "فنی و مهندسی",
+    entries: [
+      { role: "مدیر فنی و مهندسی", name: "آقای اردلان", ext: ["150"] },
+      { role: "رئیس تاسیسات", name: "آقای رضایی", ext: ["157"] },
+      { role: "رئیس مکانیک", name: "آقای کاشانی", ext: ["151"] },
+      { role: "رئیس برق", name: "آقای ارجمندی", ext: ["152"] },
+      { role: "رئیس عمران", name: "آقای اسدی", ext: ["148"] },
+      { role: "کارشناس تاسیسات", name: "آقای مهریزی", ext: ["155"] },
+      { role: "کارشناسان فنی PM", name: "آقای شاهسونی", ext: ["160"] },
+      { role: "کارشناسان فنی PM", name: "آقای آخوندی", ext: ["160"] },
+      { role: "کارشناس کالیبراسیون", name: "آقای زارع", ext: ["196"] },
+      { role: "کارگاه برق", name: "آقای سعدی", ext: ["153"] },
+      { role: "موتورخانه تاسیسات", name: "آقای زمانی", ext: ["149"] },
+      { role: "بویلرمن", name: "", ext: ["163"] },
+    ]
+  },
+  {
+    section: "تولید",
+    entries: [
+      { role: "مدیر تولید", name: "آقای کهربائیان", ext: ["140"] },
+      { role: "جانشین مدیر تولید", name: "آقای ضیغم", ext: ["142"] },
+      { role: "رئیس تولید", name: "آقای داغستانی", ext: ["142"] },
+      { role: "رئیس تولید", name: "آقای فلاح", ext: ["169"] },
+      { role: "رئیس تولید", name: "آقای خسروی", ext: ["169"] },
+      { role: "کارشناس تولید", name: "آقای رضوی پناه", ext: ["197"] },
+      { role: "کارشناس تولید", name: "خانم سلجوقی", ext: ["190"] },
+      { role: "دفتر تولید", name: "آقای صابری", ext: ["156"] },
+      { role: "سالن AC (خشک)", name: "", ext: ["143"] },
+      { role: "سالن AC (تر)", name: "", ext: ["144"] },
+      { role: "سالن هسته شکر", name: "", ext: ["145"] },
+      { role: "سالن CIP (خشک)", name: "", ext: ["146"] },
+      { role: "سالن CIP (تر)", name: "", ext: ["162"] },
+      { role: "آسپرین (خشک)", name: "", ext: ["177"] },
+      { role: "آسپرین (تر)", name: "", ext: ["176"] },
+      { role: "بخش 4 (کلین)", name: "", ext: ["171"] },
+      { role: "بخش 5 (بالا)", name: "", ext: ["165"] },
+      { role: "بخش 5 (پایین)", name: "", ext: ["166"] },
+      { role: "بخش 5 (کلین)", name: "", ext: ["167"] },
+      { role: "بخش 7 (فورمن سرپرست)", name: "", ext: ["181"] },
+      { role: "بخش 7 (بالا)", name: "", ext: ["182"] },
+      { role: "بخش 7 (پایین)", name: "", ext: ["183"] },
+      { role: "بخش 7 (کلین روم)", name: "", ext: ["188"] },
+      { role: "بخش 8 (بالا)", name: "", ext: ["184"] },
+      { role: "بخش 8 (پایین)", name: "", ext: ["185"] },
+      { role: "بخش 8 (کلین روم)", name: "", ext: ["189"] },
+      { role: "بخش 9 (بالا)", name: "", ext: ["186"] },
+      { role: "بخش 9 (پایین)", name: "", ext: ["187"] },
+      { role: "بخش 9 (کلین روم)", name: "", ext: ["191"] },
+      { role: "سالن DC", name: "", ext: ["192"] },
+      { role: "پلمپ لیبل", name: "", ext: ["147"] },
+      { role: "بخش 11", name: "", ext: ["193"] },
+    ]
+  },
+  {
+    section: "برنامه ریزی و انبار",
+    entries: [
+      { role: "مدیر برنامه ریزی", name: "آقای بختیاری", ext: ["141"] },
+      { role: "رئیس فروش و انبار محصول", name: "آقای قنبری", ext: ["132"] },
+      { role: "رئیس انبار مواد اولیه و قطعات", name: "آقای مهاجر", ext: ["134"] },
+    ]
+  },
+];
+
+let totalEntries = 0;
+
+function buildHTML() {
+  const container = document.getElementById('sections');
+  data.forEach((sec, si) => {
+    totalEntries += sec.entries.length;
+    const div = document.createElement('div');
+    div.className = 'section';
+    div.id = 'sec_' + si;
+    div.innerHTML = `
+      <div class="section-header">${sec.section}</div>
+      <div class="entries" id="entries_${si}">
+        ${sec.entries.map((e, ei) => `
+          <div class="entry" id="e_${si}_${ei}" data-search="${e.role} ${e.name} ${e.ext.join(' ')}">
+            <div class="entry-role">${e.role}</div>
+            <div class="entry-name">${e.name || ''}</div>
+            <div class="entry-ext">${e.ext.map(x => `<span class="ext-badge">${x}</span>`).join('')}</div>
+          </div>
+        `).join('')}
+      </div>`;
+    container.appendChild(div);
+  });
+  updateStats(totalEntries);
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  let shown = 0;
+  
+  data.forEach((sec, si) => {
+    let secVisible = 0;
+    sec.entries.forEach((e, ei) => {
+      const el = document.getElementById(`e_${si}_${ei}`);
+      const match = !q || el.dataset.search.includes(q);
+      el.classList.toggle('hidden', !match);
+      if (match) secVisible++;
+    });
+    const secEl = document.getElementById('sec_' + si);
+    secEl.classList.toggle('all-hidden', secVisible === 0);
+    shown += secVisible;
+  });
+
+  updateStats(shown);
+  document.getElementById('noResults').style.display = shown === 0 ? 'block' : 'none';
+}
+
+function updateStats(count) {
+  document.getElementById('stats').innerHTML = `نمایش <span>${count}</span> مورد از <span>${totalEntries}</span> شماره داخلی`;
+}
+
+buildHTML();
+</script>
+</body>
+</html>
